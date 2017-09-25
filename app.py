@@ -3,54 +3,58 @@ from flask_api import FlaskAPI, status, exceptions
 import binpack
 
 app = FlaskAPI(__name__)
+items = []
 
-
-notes = {
-    0: [1,2,3],
-    1: [4,5,6],
-    2: [7,8,9],
-}
-
-def note_repr(key):
-    return {
-        'url': request.host_url.rstrip('/') + url_for('notes_detail', key=key),
-        'text': sum(notes[key])
-    }
-
-
-@app.route("/", methods=['GET', 'POST'])
-def notes_list():
+@app.route("/", methods=['GET','POST'])
+def pack():
     """
-    List or create notes.
+    Takes a set of items and binpack settings
+    Returns backed bins
+
+    JSON Schema:
+    {
+        "items": [(int,int), (int,int)],
+        "binmanager": {
+            "width": int,
+            "height": int,
+            "bin_algo": string,
+            "pack_algo": string,
+            "heuristic": string,
+            "sorting": bool,
+            "rotation: bool,
+        }
+    }
     """
     if request.method == 'POST':
-        note = request.data.get('text', '')
-        idx = max(notes.keys()) + 1
-        notes[idx] = note
-        return note_repr(idx), status.HTTP_201_CREATED
+        new_items = request.data.get('items', '')
+        for item in new_items:
+            items.append(binpack.Item(*item))
 
+        binmanager = request.data.get('binmanager', '')
+        bwidth = binmanager['width']
+        bheight = binmanager['height']
+        bbin_algo = binmanager['bin_algo']
+        bpack_algo = binmanager['pack_algo']
+        bheuristic = binmanager['heuristic']
+        bsorting = binmanager['sorting']
+        brotation = binmanager['rotation']
+
+        M = binpack.BinManager(bwidth,
+                               bheight,
+                               bbin_algo,
+                               bpack_algo,
+                               bheuristic,
+                               bsorting,
+                               brotation)
+        M.add_items(*items)
+        M.execute()
+
+        return {'items': [{'width': i.x,
+                           'height': i.y,
+                           'cornerPoint': i.CornerPoint}
+                           for i in M.items]}
     # request.method == 'GET'
-    return [note_repr(idx) for idx in sorted(notes.keys())]
-
-
-@app.route("/<int:key>/", methods=['GET', 'PUT', 'DELETE'])
-def notes_detail(key):
-    """
-    Retrieve, update or delete note instances.
-    """
-    if request.method == 'PUT':
-        note = str(request.data.get('text', ''))
-        notes[key] = note
-        return note_repr(key)
-
-    elif request.method == 'DELETE':
-        notes.pop(key, None)
-        return '', status.HTTP_204_NO_CONTENT
-
-    # request.method == 'GET'
-    if key not in notes:
-        raise exceptions.NotFound()
-    return note_repr(key)
+    return {}
 
 
 if __name__ == "__main__":
