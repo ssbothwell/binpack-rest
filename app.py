@@ -22,9 +22,7 @@ schema = Schema({
 def pack():
     """
     Takes a set of items and binpack settings
-    Returns backed bins
-
-    JSON Schema:
+    Returns packed bins
     """
     if request.method == 'POST':
         data = request.data
@@ -34,6 +32,8 @@ def pack():
         M = binpack.BinManager(**binargs)
         M.add_items(*items)
         M.execute()
+        unpacked = [[ unpackItem(i) for i in b.items] for b in M.bins]
+        return { i: el for i,el in enumerate(unpacked)}
         return {'items': [{'width': i.x,
                            'height': i.y,
                            'cornerPoint': i.CornerPoint}
@@ -41,6 +41,8 @@ def pack():
     # request.method == 'GET'
     return {}
 
+def unpackItem(item: binpack.Item):
+    return [item.x, item.y, [item.CornerPoint[0], item.CornerPoint[1]]]
 
 if __name__ == "__main__":
     app.run(debug=True)
