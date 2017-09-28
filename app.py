@@ -1,7 +1,7 @@
 from flask import request, url_for
 from flask_api import FlaskAPI, status, exceptions
 from schema import Schema
-import binpack
+import greedypacker
 
 app = FlaskAPI(__name__)
 
@@ -21,15 +21,15 @@ schema = Schema({
 @app.route("/", methods=['GET','POST'])
 def pack():
     """
-    Takes a set of items and binpack settings
+    Takes a set of items and greedypacker settings
     Returns packed bins
     """
     if request.method == 'POST':
         data = request.data
         schema.validate(data)
-        items = [binpack.Item(*item) for item in data['items']]
+        items = [greedypacker.Item(*item) for item in data['items']]
         binargs= request.data['binmanager']
-        M = binpack.BinManager(**binargs)
+        M = greedypacker.BinManager(**binargs)
         M.add_items(*items)
         M.execute()
         unpacked = [[ unpackItem(i) for i in b.items] for b in M.bins]
@@ -41,7 +41,7 @@ def pack():
     # request.method == 'GET'
     return {}
 
-def unpackItem(item: binpack.Item):
+def unpackItem(item: greedypacker.Item):
     return [item.x, item.y, [item.CornerPoint[0], item.CornerPoint[1]]]
 
 if __name__ == "__main__":
