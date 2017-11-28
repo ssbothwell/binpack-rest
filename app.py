@@ -1,9 +1,11 @@
 from flask import request, url_for
 from flask_api import FlaskAPI, status, exceptions
+from flask_cors import CORS
 from schema import Schema
 import greedypacker
 
 app = FlaskAPI(__name__)
+CORS(app)
 
 schema = Schema({
     "items": [[int,int], [int,int]],
@@ -14,6 +16,7 @@ schema = Schema({
         "pack_algo": str,
         "heuristic": str,
         "sorting": bool,
+        "sorting_heuristic": str,
         "rotation": bool,
     }
 })
@@ -33,16 +36,13 @@ def pack():
         M.add_items(*items)
         M.execute()
         unpacked = [[ unpackItem(i) for i in b.items] for b in M.bins]
-        return { i: el for i,el in enumerate(unpacked)}
-        return {'items': [{'width': i.x,
-                           'height': i.y,
-                           'cornerPoint': i.CornerPoint}
-                           for i in M.items]}
+        return unpacked
+
     # request.method == 'GET'
     return {}
 
 def unpackItem(item: greedypacker.Item):
-    return [item.x, item.y, [item.CornerPoint[0], item.CornerPoint[1]]]
+    return { 'x': item.width, 'y': item.height, 'cornerPoint': [item.x, item.y]}
 
 if __name__ == "__main__":
     app.run(debug=True)
