@@ -18,6 +18,8 @@ schema = Schema({
         "sorting": bool,
         "sorting_heuristic": str,
         "rotation": bool,
+        "wastemap": bool,
+        "rectangle_merge": bool
     }
 })
 
