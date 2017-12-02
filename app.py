@@ -44,7 +44,7 @@ def pack():
     return {}
 
 def unpackItem(item: greedypacker.Item):
-    return { 'x': item.width, 'y': item.height, 'cornerPoint': [item.x, item.y]}
+    return { 'width': item.width, 'height': item.height, 'x': item.x, 'y': item.y}
 
 if __name__ == "__main__":
     app.run(debug=True)
