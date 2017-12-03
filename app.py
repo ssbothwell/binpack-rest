@@ -38,8 +38,6 @@ def pack():
         M.add_items(*items)
         M.execute()
         unpacked_items= [[ unpackItem(i) for i in b.items] for b in M.bins]
-        print(unpacked_items)
-
         return {'bin_width': M.bin_width, 'bin_height': M.bin_height, 'sheets': unpacked_items}
 
     # request.method == 'GET'
