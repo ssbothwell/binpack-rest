@@ -32,7 +32,15 @@ def pack():
     if request.method == 'POST':
         data = request.data
         schema.validate(data)
-        items = [greedypacker.Item(*item) for item in data['items']]
+
+        items = []
+        for item in data['items']:
+            if len(el) == 3:
+                item = greedypacker.Item(*el[:2])
+                item.id = el[2] 
+            else:
+                item = greedypacker.Item(*el)
+            items.append[item]
         binargs= request.data['binmanager']
         M = greedypacker.BinManager(**binargs)
         M.add_items(*items)
