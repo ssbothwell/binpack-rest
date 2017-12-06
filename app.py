@@ -23,7 +23,7 @@ schema = Schema({
     }
 })
 
-@app.route("/", methods=['GET','POST'])
+@app.route("/", methods=['POST'])
 def pack():
     """
     Takes a set of items and greedypacker settings
