@@ -52,7 +52,7 @@ def pack():
     return {}
 
 def unpackItem(item: greedypacker.Item):
-    return { 'width': item.width, 'height': item.height, 'x': item.x, 'y': item.y}
+    return { 'width': item.width, 'height': item.height, 'x': item.x, 'y': item.y, 'id': item.id}
 
 if __name__ == "__main__":
     app.run(debug=True)
